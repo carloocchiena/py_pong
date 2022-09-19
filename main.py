@@ -6,7 +6,7 @@ from pygame.locals import *
 # change this value to speed up or slow down your game
 FPS = 200
 
-# global variables to be used through our program
+# global vars
 WINDOWWIDTH = 400
 WINDOWHEIGHT = 300
 LINETHICKNESS = 10
@@ -14,11 +14,11 @@ PADDLESIZE = 50
 PADDLEOFFSET = 20
 
 # set up the colours
-BLACK     = (0  ,0  ,0  )
-WHITE     = (255,255,255)
+BLACK = (0  ,0  ,0  )
+WHITE = (255,255,255)
 
 # draws the arena the game will be played in. 
-def drawArena():
+def draw_arena():
     DISPLAYSURF.fill((0,0,0))
     # draw outline of arena
     pygame.draw.rect(DISPLAYSURF, WHITE, ((0,0),(WINDOWWIDTH,WINDOWHEIGHT)), LINETHICKNESS*2)
@@ -26,7 +26,7 @@ def drawArena():
     pygame.draw.line(DISPLAYSURF, WHITE, ((WINDOWWIDTH/2),0),((WINDOWWIDTH/2),WINDOWHEIGHT), (LINETHICKNESS/4))
 
 # draws the paddle
-def drawPaddle(paddle):
+def draw_paddle(paddle):
     # stops paddle moving too low
     if paddle.bottom > WINDOWHEIGHT - LINETHICKNESS:
         paddle.bottom = WINDOWHEIGHT - LINETHICKNESS
@@ -37,17 +37,17 @@ def drawPaddle(paddle):
     pygame.draw.rect(DISPLAYSURF, WHITE, paddle)
   
 # draws the ball
-def drawBall(ball):
+def draw_ball(ball):
     pygame.draw.rect(DISPLAYSURF, WHITE, ball)
     
 # moves the ball return new position
-def moveball(ball, balldirx,balldiry):
+def move_ball(ball, balldirx,balldiry):
     ball.x+=balldirx
     ball.y+=balldiry
     return ball
 
 # check for collision with a wall
-def checkedgecollision(ball,balldirx,balldiry):
+def check_edge_collision(ball,balldirx,balldiry):
     if ball.top==(LINETHICKNESS) or ball.bottom==(WINDOWHEIGHT - LINETHICKNESS): 
         balldiry=balldiry*-1
     if ball.left==(LINETHICKNESS) or ball.right==(WINDOWWIDTH-LINETHICKNESS):
@@ -55,7 +55,7 @@ def checkedgecollision(ball,balldirx,balldiry):
     return balldirx, balldiry   
 
 #check for collision with a paddle
-def checkhitball(ball,paddle1,paddle2,balldirx):
+def check_hit_ball(ball,paddle1,paddle2,balldirx):
     if balldirx == -1 and paddle1.right==ball.left and paddle1.top<ball.top and paddle1.bottom>ball.bottom:
         return -1
     elif balldirx == 1 and paddle2.left==ball.right and paddle2.top<ball.top and paddle2.bottom > ball.bottom:
@@ -64,7 +64,7 @@ def checkhitball(ball,paddle1,paddle2,balldirx):
         return 1
 
 # checks to see if a point has been scored returns new score
-def checkpointscored(paddle1, ball, score, balldirx):
+def checkpoint_scored(paddle1, ball, score, balldirx):
     # reset points if left wall is hit
     if ball.left == LINETHICKNESS: 
         return 0
@@ -81,7 +81,7 @@ def checkpointscored(paddle1, ball, score, balldirx):
         return score
 
 # computer intelligence
-def artificialintelligence(ball,balldirx,paddle2):
+def artificial_intelligence(ball,balldirx,paddle2):
     # if ball is moving away from paddle, center bat
     if balldirx == -1:
         if paddle2.centery < (WINDOWHEIGHT/2):
@@ -97,7 +97,7 @@ def artificialintelligence(ball,balldirx,paddle2):
     return paddle2        
 
 # display current score on the screen
-def displayscore(score):
+def display_score(score):
     resultsurf=basicfont.render("score =%s" %(score), True, WHITE)
     resultrect=resultsurf.get_rect()
     resultrect.topleft=(WINDOWWIDTH -150,25)
@@ -133,13 +133,13 @@ def main():
     paddle1 = pygame.Rect(PADDLEOFFSET,playerOnePosition, LINETHICKNESS,PADDLESIZE)
     paddle2 = pygame.Rect(WINDOWWIDTH - PADDLEOFFSET - LINETHICKNESS, playerTwoPosition, LINETHICKNESS,PADDLESIZE)
     ball = pygame.Rect(ballX, ballY, LINETHICKNESS, LINETHICKNESS)
-    score = checkpointscored(paddle1,ball,score,balldirx)
+    score = checkpoint_scored(paddle1,ball,score,balldirx)
 
     # draws the starting position of the Arena
-    drawArena()
-    drawPaddle(paddle1)
-    drawPaddle(paddle2)
-    drawBall(ball)
+    draw_arena()
+    draw_paddle(paddle1)
+    draw_paddle(paddle2)
+    draw_ball(ball)
 
     pygame.mouse.set_visible(0) #make mouse cursor invisible
 
@@ -154,15 +154,15 @@ def main():
                 mousex,mousey = event.pos
                 paddle1.y=mousey
 
-        drawArena()
-        drawPaddle(paddle1)
-        drawPaddle(paddle2)
-        drawBall(ball)
+        draw_arena()
+        draw_paddle(paddle1)
+        draw_paddle(paddle2)
+        draw_ball(ball)
         
         ball = moveball(ball, balldirx, balldiry)
-        balldirx, balldiry = checkedgecollision(ball,balldirx,balldiry)
-        score = checkpointscored(paddle1, ball, score, balldirx)
-        paddle2 = artificialintelligence (ball, balldirx, paddle2)
+        balldirx, balldiry = check_edge_collision(ball,balldirx,balldiry)
+        score = checkpoint_scored(paddle1, ball, score, balldirx)
+        paddle2 = artificial_intelligence (ball, balldirx, paddle2)
         balldirx = balldirx * checkhitball(ball,paddle1,paddle2, balldirx)
         
         displayscore(score)
